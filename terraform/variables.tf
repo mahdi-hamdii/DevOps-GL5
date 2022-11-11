@@ -10,7 +10,7 @@ variable "location" {
 
 variable "subscription_id" {
   type = string
-  description = "Used subscription"
+  description = "Azure Used subscription"
 }
 
 variable "worker-nic-names" {
