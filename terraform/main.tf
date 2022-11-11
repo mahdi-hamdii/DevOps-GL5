@@ -1,43 +1,41 @@
-resource "azurerm_resource_group" "vm-rg" {
-  name     = "vm-instances-rg"
-  location = "France Central"
-}
-resource "azurerm_virtual_network" "kubernetes-virtual-network" {
-  name                = "kubernetes-cluster-v-network"
-  address_space       = ["10.0.0.0/16"]
-  location            = azurerm_resource_group.vm-rg.location
-  resource_group_name = azurerm_resource_group.vm-rg.name
+data "azurerm_resource_group" "resource-grp" {
+  name = var.resource_group_name
 }
 
-resource "azurerm_subnet" "kubernetes-subnet" {
-  name                 = "kubernetes-subnet"
-  resource_group_name  = azurerm_resource_group.vm-rg.name
-  virtual_network_name = azurerm_virtual_network.kubernetes-virtual-network.name
-  address_prefixes     = ["10.0.2.0/24"]
+module "vnet_subnet" {
+  source = "./modules/VNET-subnet"
+  resource_group_name = var.resource_group_name
+  resource_group_location = data.azurerm_resource_group.resource-grp.location
+  vnet_name = "kubernetes-virtual-network"
+  subnet_name = "kubernetes-subnet"
 }
 
-resource "azurerm_network_interface" "worker-0-nic" {
-  name                = "worker-0-nic"
-  location            = azurerm_resource_group.vm-rg.location
-  resource_group_name = azurerm_resource_group.vm-rg.name
+resource "azurerm_network_interface" "worker-nics" {
+  count = length(var.worker-nic-names)
+  name                = var.worker-nic-names[count.index]
+  location            = data.azurerm_resource_group.resource-grp.location
+  resource_group_name = data.azurerm_resource_group.resource-grp.name
 
   ip_configuration {
     name                          = "internal"
-    subnet_id                     = azurerm_subnet.kubernetes-subnet.id
+    subnet_id                     = module.vnet_subnet.subnet_id
     private_ip_address_allocation = "Dynamic"
   }
 }
 
-resource "azurerm_linux_virtual_machine" "worker-0" {
-  name                  = "worker-0"
-  resource_group_name = azurerm_resource_group.vm-rg.name
-  location            = azurerm_resource_group.vm-rg.location
-  size                = "Standard_B1s"
-  admin_username      = "adminuser"
-  admin_password      = "Mahdi123"
-  disable_password_authentication = false
+resource "azurerm_linux_virtual_machine" "workers" {
+  count = length(var.workers)
+  name                = var.workers[count.index]
+  resource_group_name = data.azurerm_resource_group.resource-grp.name
+  location            = data.azurerm_resource_group.resource-grp.location
+  size                = var.worker-size
+  admin_username      = var.worker-admin-username
+  admin_ssh_key {
+    username   = var.worker-admin-username
+    public_key = file("./id_rsa.pub")
+  }
   network_interface_ids = [
-    azurerm_network_interface.worker-0-nic.id,
+    azurerm_network_interface.worker-nics[count.index].id,
   ]
 
   os_disk {
@@ -53,28 +51,40 @@ resource "azurerm_linux_virtual_machine" "worker-0" {
   }
 }
 
-resource "azurerm_network_interface" "worker-1-nic" {
-  name                = "worker-1-nic"
-  location            = azurerm_resource_group.vm-rg.location
-  resource_group_name = azurerm_resource_group.vm-rg.name
+/**
+resource "azurerm_public_ip" "master-public-ip" {
+  name                = "master-public-ip"
+  resource_group_name = data.azurerm_resource_group.resource-grp.name
+  location            = data.azurerm_resource_group.resource-grp.location
+  allocation_method   = "Dynamic"
+}
 
+resource "azurerm_network_interface" "master-nic" {
+  name                = "master-nic"
+  location            = data.azurerm_resource_group.resource-grp.location
+  resource_group_name = data.azurerm_resource_group.resource-grp.name
   ip_configuration {
     name                          = "internal"
     subnet_id                     = azurerm_subnet.kubernetes-subnet.id
     private_ip_address_allocation = "Dynamic"
+    public_ip_address_id = azurerm_public_ip.master-public-ip.id
+
   }
 }
 
-resource "azurerm_linux_virtual_machine" "worker-1" {
-  name                  = "worker-1"
-  resource_group_name = azurerm_resource_group.vm-rg.name
-  location            = azurerm_resource_group.vm-rg.location
+resource "azurerm_linux_virtual_machine" "master" {
+  name                  = "master"
+  resource_group_name = data.azurerm_resource_group.resource-grp.name
+  location            = data.azurerm_resource_group.resource-grp.location
   size                = "Standard_B1s"
   admin_username      = "adminuser"
-  admin_password      = "Mahdi123"
-  disable_password_authentication = false
+  admin_ssh_key {
+    username   = "adminuser"
+    public_key = file("./id_rsa.pub")
+  }
+
   network_interface_ids = [
-    azurerm_network_interface.worker-1-nic.id,
+    azurerm_network_interface.master-nic.id,
   ]
 
   os_disk {
@@ -89,3 +99,27 @@ resource "azurerm_linux_virtual_machine" "worker-1" {
     version   = "latest"
   }
 }
+
+resource "azurerm_network_security_group" "ssh-inbound" {
+  name                = "allow-inbound-ssh"
+  location            = data.azurerm_resource_group.resource-grp.location
+  resource_group_name = data.azurerm_resource_group.resource-grp.name
+
+  security_rule {
+    name                       = "allow-ssh"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "22"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+}
+
+resource "azurerm_subnet_network_security_group_association" "ssh-to-kubernetes-subnet" {
+  subnet_id                 = module.vnet_subnet.subnet_id
+  network_security_group_id = azurerm_network_security_group.ssh-inbound.id
+}
+*/
