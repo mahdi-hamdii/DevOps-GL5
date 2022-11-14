@@ -1,15 +1,15 @@
 variable "resource_group_name" {
-  type = string
+  type        = string
   description = "RG name in azure"
 }
 
 variable "location" {
-  type = string
+  type        = string
   description = "Ressources location in Azure"
 }
 
 variable "subscription_id" {
-  type = string
+  type        = string
   description = "Azure Used subscription"
 }
 
@@ -21,11 +21,36 @@ variable "workers" {
   type = list(string)
 }
 
-variable "worker-size" {
+variable "worker_size" {
   type = string
 }
 
 variable "worker-admin-username" {
-  type = string
+  type    = string
   default = "adminuser"
+}
+
+variable "security_group_name" {
+  type    = string
+  default = "allow-ssh"
+}
+variable "security_rule_ssh" {
+  type = object({
+    name                   = string
+    priority               = string
+    direction              = string
+    access                 = string
+    protocol               = string
+    source_port_range      = string
+    destination_port_range = string
+  })
+}
+
+variable "private_key_path" {
+  type    = string
+  default = "./gl5-ssh.pem"
+}
+
+variable "master_size" {
+  type = string
 }

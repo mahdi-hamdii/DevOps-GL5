@@ -1,0 +1,7 @@
+- name: create repo
+  hosts: all
+  remote_user: adminuser
+  become: yes
+  tasks:
+    - name: create empty repo
+      command: touch test.txt

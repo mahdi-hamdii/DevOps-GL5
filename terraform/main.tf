@@ -3,15 +3,24 @@ data "azurerm_resource_group" "resource-grp" {
 }
 
 module "vnet_subnet" {
-  source = "./modules/VNET-subnet"
-  resource_group_name = var.resource_group_name
+  source                  = "./modules/VNET-subnet"
+  resource_group_name     = var.resource_group_name
   resource_group_location = data.azurerm_resource_group.resource-grp.location
-  vnet_name = "kubernetes-virtual-network"
-  subnet_name = "kubernetes-subnet"
+  vnet_name               = "kubernetes-virtual-network"
+  subnet_name             = "kubernetes-subnet"
+}
+
+module "security_group" {
+  source                  = "./modules/SG"
+  resource_group_name     = var.resource_group_name
+  resource_group_location = data.azurerm_resource_group.resource-grp.location
+  security_group_name     = var.security_group_name
+  security_rule           = var.security_rule_ssh
+  subnet_id               = module.vnet_subnet.subnet_id
 }
 
 resource "azurerm_network_interface" "worker-nics" {
-  count = length(var.worker-nic-names)
+  count               = length(var.worker-nic-names)
   name                = var.worker-nic-names[count.index]
   location            = data.azurerm_resource_group.resource-grp.location
   resource_group_name = data.azurerm_resource_group.resource-grp.name
@@ -24,11 +33,11 @@ resource "azurerm_network_interface" "worker-nics" {
 }
 
 resource "azurerm_linux_virtual_machine" "workers" {
-  count = length(var.workers)
+  count               = length(var.workers)
   name                = var.workers[count.index]
   resource_group_name = data.azurerm_resource_group.resource-grp.name
   location            = data.azurerm_resource_group.resource-grp.location
-  size                = var.worker-size
+  size                = var.worker_size
   admin_username      = var.worker-admin-username
   admin_ssh_key {
     username   = var.worker-admin-username
@@ -51,7 +60,6 @@ resource "azurerm_linux_virtual_machine" "workers" {
   }
 }
 
-/**
 resource "azurerm_public_ip" "master-public-ip" {
   name                = "master-public-ip"
   resource_group_name = data.azurerm_resource_group.resource-grp.name
@@ -65,18 +73,18 @@ resource "azurerm_network_interface" "master-nic" {
   resource_group_name = data.azurerm_resource_group.resource-grp.name
   ip_configuration {
     name                          = "internal"
-    subnet_id                     = azurerm_subnet.kubernetes-subnet.id
+    subnet_id                     = module.vnet_subnet.subnet_id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id = azurerm_public_ip.master-public-ip.id
+    public_ip_address_id          = azurerm_public_ip.master-public-ip.id
 
   }
 }
 
 resource "azurerm_linux_virtual_machine" "master" {
-  name                  = "master"
+  name                = "master"
   resource_group_name = data.azurerm_resource_group.resource-grp.name
   location            = data.azurerm_resource_group.resource-grp.location
-  size                = "Standard_B1s"
+  size                = var.master_size
   admin_username      = "adminuser"
   admin_ssh_key {
     username   = "adminuser"
@@ -98,28 +106,19 @@ resource "azurerm_linux_virtual_machine" "master" {
     sku       = "16.04-LTS"
     version   = "latest"
   }
-}
 
-resource "azurerm_network_security_group" "ssh-inbound" {
-  name                = "allow-inbound-ssh"
-  location            = data.azurerm_resource_group.resource-grp.location
-  resource_group_name = data.azurerm_resource_group.resource-grp.name
+  provisioner "remote-exec" {
+    connection {
+      type        = "ssh"
+      user        = var.worker-admin-username
+      private_key = file("./gl5-ssh.pem")
+      host        = azurerm_linux_virtual_machine.master.public_ip_address
+    }
 
-  security_rule {
-    name                       = "allow-ssh"
-    priority                   = 100
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "22"
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
+    inline = ["echo 'connected!'"]
+  }
+
+  provisioner "local-exec" {
+    command = "ansible-playbook -i ${azurerm_linux_virtual_machine.master.public_ip_address}, --private-key ${var.private_key_path} kubeadm.yaml"
   }
 }
-
-resource "azurerm_subnet_network_security_group_association" "ssh-to-kubernetes-subnet" {
-  subnet_id                 = module.vnet_subnet.subnet_id
-  network_security_group_id = azurerm_network_security_group.ssh-inbound.id
-}
-*/
