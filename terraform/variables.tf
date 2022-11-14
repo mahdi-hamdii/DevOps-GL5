@@ -34,6 +34,7 @@ variable "security_group_name" {
   type    = string
   default = "allow-ssh"
 }
+//dummy comment test
 variable "security_rule_ssh" {
   type = object({
     name                   = string
