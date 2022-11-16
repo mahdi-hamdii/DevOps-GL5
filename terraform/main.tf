@@ -18,6 +18,13 @@ module "security_group" {
   security_rule           = var.security_rule_ssh
   subnet_id               = module.vnet_subnet.subnet_id
 }
+resource "azurerm_public_ip" "workers-public-ips" {
+  count               = length(var.worker-nic-names)
+  name                = var.workers[count.index]
+  resource_group_name = data.azurerm_resource_group.resource-grp.name
+  location            = data.azurerm_resource_group.resource-grp.location
+  allocation_method   = "Dynamic"
+}
 
 resource "azurerm_network_interface" "worker-nics" {
   count               = length(var.worker-nic-names)
@@ -29,6 +36,8 @@ resource "azurerm_network_interface" "worker-nics" {
     name                          = "internal"
     subnet_id                     = module.vnet_subnet.subnet_id
     private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.workers-public-ips[count.index].id
+
   }
 }
 
@@ -117,7 +126,6 @@ resource "azurerm_linux_virtual_machine" "master" {
 
     inline = ["echo 'connected!'"]
   }
-
   provisioner "local-exec" {
     command = "ansible-playbook -i ${azurerm_linux_virtual_machine.master.public_ip_address}, --private-key ${var.private_key_path} kubeadm.yaml"
   }
