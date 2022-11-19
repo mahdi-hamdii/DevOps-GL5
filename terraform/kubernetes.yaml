@@ -1,24 +1,27 @@
 - name: create repo
-  hosts: all
   vars:
     private_ip_address: "10.0.2.8"
     pod_cidr_block: "10.1.0.0/16"
   remote_user: adminuser
   become: yes
   tasks:
-    - name: setup kubeadm environment
+    - hosts: all
+      name: setup kubeadm environment
       import_role:
         name: kubernetes-env-setup
       become: yes
-      
-    - name: setup master cluster
+
+    - hosts: master
+      name: setup master cluster
       import_role:
         name: master-init
       become: yes 
 
-    - name: kubectl create the ressource
+    - hosts: master
+      name: kubectl create the ressource
       shell: sudo kubeadm token create --print-join-command
       register: join_token
-    - name: join tken
+    - hosts: workers
+      name: join tken
       shell: " echo {{ join_token.stdout }} > join.txt"
 
