@@ -41,17 +41,25 @@ module "master" {
 
 resource "local_file" "ansible_inventory" {
   depends_on = [
-    azurerm_linux_virtual_machine.master,
-    azurerm_linux_virtual_machine.workers
+    module.master,
+    module.workers
   ]
   content = templatefile("hosts.ini",
     {
       user    = "adminuser"
       prefix  = "kubeadm"
-      workers = azurerm_linux_virtual_machine.workers.*.public_ip_address
-      master  = azurerm_linux_virtual_machine.master.public_ip_address
+      workers = module.workers.public_ips
+      master  = module.master.master_public_ip
     }
   )
-  filename = "hosts.ini"
+  filename = "hosts-result.ini"
 }
 
+resource "null_resource" "execute_ansible" {
+  depends_on = [
+    local_file.ansible_inventory
+  ]
+  provisioner "local-exec" {
+    command = "ansible-playbook -i hosts-result.ini, --private-key gl5-ssh.pen kubernetes.yaml"
+  }
+}
