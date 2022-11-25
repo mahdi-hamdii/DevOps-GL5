@@ -1,4 +1,4 @@
----
+# # ---
     - name: reset kubernetes component
       shell: kubeadm reset --force
       register: reset_cluster
@@ -40,6 +40,6 @@
         path: custom-resources.yaml
         regexp: '^(.*)cidr: 192\.168\.0\.0/16(.*)$'
         replace: '\1cidr: {{ pod_cidr_block }}\2'
-        
+
     - name: kubectl create the ressource
       shell: kubectl create -f "custom-resources.yaml" 

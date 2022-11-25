@@ -1,14 +1,14 @@
-    # - hosts: all
-    #   name: setup kubeadm environment
-    #   roles:
-    #     - { role: kubernetes-env-setup, tags: kubernetes-env-setup }
-    #   become: yes
+    - hosts: all
+      name: setup kubeadm environment
+      roles:
+        - { role: kubernetes-env-setup, tags: kubernetes-env-setup }
+      become: yes
 
-    # - hosts: master
-    #   name: setup master cluster
-    #   roles:
-    #     - { role: master-init, tags: master-init }
-    #   become: yes 
+    - hosts: master
+      name: setup master cluster
+      roles:
+        - { role: master-init, tags: master-init }
+      become: yes 
 
     - hosts: master
       name: Generate Token
@@ -16,17 +16,34 @@
         - name: create join token
           shell: sudo kubeadm token create --print-join-command
           register: join_token
-        - name: adding workers hosts
-          add_host:
-            groups: workers 
+
         - name: save join token
-          shell: " echo {{ join_token.stdout }} > join.txt" 
+          shell: " echo {{ join_token.stdout }} > join.sh"
+
+        - name: save to local 
+          run_once: yes
+          fetch: src=join.sh dest="{{ playbook_dir }}/buffer/" flat=yes
+
+        - name: create .kube repo
+          file:
+            path: .kube
+            state: directory
+
+        - name: Copy admin.conf to Home directory
+          copy:
+            src: "/etc/kubernetes/admin.conf"
+            dest: .kube/config
+            remote_src: true
       become: yes
 
-    # - hosts: all
-    #   name: join tken
-    #   become: yes
-    #   tasks:
-    #     - name: save join token
-    #       shell: " echo {{ join_token.stdout }} > join.txt"
+    - hosts: workers
+      name: copy token to workers
+      become: yes
+      tasks:
+        - name: save join token to workers
+          copy: 
+              src: "{{ playbook_dir }}/buffer/join.sh"
+              dest: "./"
+        - name: execute join token
+          command: sh join.sh
 

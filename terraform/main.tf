@@ -56,10 +56,20 @@ resource "local_file" "ansible_inventory" {
 }
 
 resource "null_resource" "execute_ansible" {
+  provisioner "remote-exec" {
+    connection {
+      type        = "ssh"
+      host        = module.master.master_public_ip
+      user        = "adminuser"
+      private_key = file("gl5-ssh.pem")
+    }
+
+    inline = ["echo 'connected!'"]
+  }
   depends_on = [
     local_file.ansible_inventory
   ]
   provisioner "local-exec" {
-    command = "ansible-playbook -i hosts-result.ini, --private-key gl5-ssh.pen kubernetes.yaml"
+    command = "ansible-playbook -i ./hosts-result.ini --private-key gl5-ssh.pem kubernetes.yaml"
   }
 }
