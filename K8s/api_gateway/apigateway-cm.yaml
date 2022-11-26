@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-gateway-configmap
+  namespace: staging
+data:
+  APPOINTMENT_SVC: "appointment-svc"
+  AUTH_SVC: "auth-svc"

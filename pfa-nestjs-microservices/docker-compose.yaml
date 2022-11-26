@@ -1,0 +1,139 @@
+version: "3.3"
+services:
+  api-gateway:
+    container_name: api-gateway
+    build:
+      context: ./api-gateway/
+    command: "npm run start:dev"
+    ports:
+      - 8000:3000
+    volumes:
+      - ./api-gateway/:/app
+    networks:
+      - pfa
+
+  appointment:
+    container_name: appointment
+    build:
+      context: ./appointment/
+    command: "npm run start:dev"
+    ports:
+      - 8001:3000
+    volumes:
+      - ./appointment/:/app
+    networks:
+      - pfa
+    env_file:
+      - ./global.env
+    environment:
+      - DATABASE_USER=${MONGO_INITDB_ROOT_USERNAME}
+      - DATABASE_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - DATABASE_NAME=appointments
+      - DATABASE_TEST_NAME=test_appointment
+      - DATABASE_LINK=appointment_mongodb:27017
+
+  appointment_mongodb:
+    container_name: appointment_mongodb
+    image: mongo
+    # ports:
+    #   - 27017:27017
+    volumes:
+      - appointmentMongodbData:/data/db
+    networks:
+      - pfa
+    environment:
+      - MONGO_INITDB_DATABASE=appointments
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+
+  appointment_mongo_express:
+    container_name: appointment_mongo_express
+    image: mongo-express
+    depends_on:
+      - appointment_mongodb
+    restart: always
+    networks:
+      - pfa
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=appointment_mongodb
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - ME_CONFIG_BASICAUTH_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - ME_CONFIG_BASICAUTH_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+    ports:
+      - "8081:8081"
+
+  auth:
+    container_name: auth
+    build:
+      context: ./auth/
+    command: "npm run start:dev"
+    ports:
+      - 8002:3000
+    volumes:
+      - ./auth/:/app
+    networks:
+      - pfa
+    env_file:
+      - ./global.env
+    environment:
+      - DATABASE_USER=${MONGO_INITDB_ROOT_USERNAME}
+      - DATABASE_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - DATABASE_NAME=auths
+      - DATABASE_TEST_NAME=test_auth
+      - DATABASE_LINK=auth_mongodb:27017
+
+  auth_mongodb:
+    container_name: auth_mongodb
+    image: mongo
+    # ports:
+    #   - 27017:27017
+    volumes:
+      - authMongodbData:/data/db
+    networks:
+      - pfa
+    environment:
+      - MONGO_INITDB_DATABASE=auths
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+
+  auth_mongo_express:
+    container_name: auth_mongo_express
+    image: mongo-express
+    depends_on:
+      - auth_mongodb
+    restart: always
+    networks:
+      - pfa
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=auth_mongodb
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - ME_CONFIG_BASICAUTH_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - ME_CONFIG_BASICAUTH_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+    ports:
+      - "8082:8081"
+
+
+  rabbitmq:
+    # default username and password are 'guest'
+    container_name: rabbitmq
+    image: rabbitmq:3.9.15-management-alpine
+    ports:
+      - "5672:5672" # Port for microservices applicaiton to connect to
+      - "15672:15672" # Port for management UI interface
+    volumes:
+      - rabbitmqPfaData:/var/lib/rabbitmq/
+      - rabbitmqPfaLog:/var/log/rabbitmq
+    networks:
+      - pfa
+    # I need to provide credentials to rabbitMQ
+
+networks:
+  pfa:
+
+volumes:
+  appointmentMongodbData:
+  authMongodbData:
+  rabbitmqPfaData:
+  rabbitmqPfaLog:

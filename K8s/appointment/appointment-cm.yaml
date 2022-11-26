@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: appointment-cm
+  namespace: staging
+data:
+    DATABASE_NAME: "appointments"
+    DATABASE_TEST_NAME: "empty=="
+    DATABASE_LINK: "empty=="
+    APPOINTMENT_DATABASE_NAME: "appointments"
+    APPOINTMENT_DATABASE_TEST_NAME: "test_appointment"
+    APPOINTMENT_DATABASE_LINK: "appointment-mongodb-svc:27017"
+    APPOINTMENT_DATABASE_SVC: "appointment-mongodb-svc"
+    RABBITMQ_HOST: "rabbitmq-svc:5672"
+    RABBITMQ_AUTH_QUEUE_NAME: "auth_queue"
+    RABBITMQ_APPOINTMENT_QUEUE_NAME: "appointment_queue"

@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-configmap
+  namespace: staging
+data:
+  AUTH_DATABASE_NAME: "auths"
+  AUTH_DATABASE_TEST_NAME: "test_auth"
+  AUTH_DATABASE_LINK: "auth-mongodb-svc:27017"
+  AUTH_DATABASE_SVC: "auth-mongodb-svc"

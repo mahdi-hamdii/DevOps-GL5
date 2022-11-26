@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-mongo-express-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-mongo-express
+  template:
+    metadata:
+      labels:
+        app: auth-mongo-express
+    spec:
+      containers:
+        - name: auth-mongo-express
+          image: mongo-express
+          ports:
+            - containerPort: 8081
+          env:
+            - name: ME_CONFIG_MONGODB_SERVER
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-configmap
+                  key: AUTH_DATABASE_SVC
+
+            - name: ME_CONFIG_MONGODB_ADMINUSERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secrets
+                  key: DATABASE_USER
+                  
+            - name: ME_CONFIG_MONGODB_ADMINPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secrets
+                  key: DATABASE_PASSWORD
+
+            - name: ME_CONFIG_BASICAUTH_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secrets
+                  key: DATABASE_USER
+
+            - name: ME_CONFIG_BASICAUTH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secrets
+                  key: DATABASE_PASSWORD

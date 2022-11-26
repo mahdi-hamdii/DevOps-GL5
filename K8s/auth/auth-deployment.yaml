@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-api
+  namespace: staging
+  labels:
+    app: auth-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-api
+  template:
+    metadata:
+      labels:
+        app: auth-api
+    spec:        
+      containers:
+        - name: auth-api
+          image: "empty=="
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          envFrom:
+          - configMapRef:
+              name: auth-configmap
+          - secretRef:
+              name: auth-secrets
