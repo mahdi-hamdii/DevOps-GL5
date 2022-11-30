@@ -17,7 +17,7 @@ spec:
     spec:        
       containers:
         - name: api-gateway
-          image: "empty=="
+          image: mahdihamdi99/pfa-microservices:api-gateway
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
