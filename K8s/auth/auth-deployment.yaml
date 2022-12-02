@@ -14,10 +14,17 @@ spec:
     metadata:
       labels:
         app: auth-api
-    spec:        
+    spec:
+      volumes:
+        - name: ssd-1-volume
+          persistentVolumeClaim:
+            claimName: auth-azure-managed-disk        
       containers:
         - name: auth-api
           image: mahdihamdi99/pfa-microservices:auth
+          volumeMounts: 
+            - mountPath: "/data/db"
+              name: ssd-1-volume
           imagePullPolicy: Always
           ports:
             - containerPort: 3000

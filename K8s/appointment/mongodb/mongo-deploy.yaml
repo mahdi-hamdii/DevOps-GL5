@@ -13,9 +13,16 @@ spec:
       labels:
         app: appointment-mongodb
     spec:
+      volumes:
+        - name: ssd-1-volume
+          persistentVolumeClaim:
+            claimName: appointment-azure-managed-disk
       containers:
         - name: appointment-mongodb
           image: mongo
+          volumeMounts: 
+            - mountPath: "/data/db"
+              name: ssd-1-volume
           ports:
             - containerPort: 27017
           env:
