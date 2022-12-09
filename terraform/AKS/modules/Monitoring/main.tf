@@ -16,3 +16,22 @@ resource "helm_release" "prometheus" {
     kubernetes_namespace.Work_Namespace
   ]
 }
+
+resource "kubernetes_service" "grafana" {
+  metadata {
+    name      = "grafana-external-endpoint"
+    namespace = var.monitoring_namespace
+  }
+  spec {
+    selector = {
+      "app.kubernetes.io/instance" = "prometheus"
+      "app.kubernetes.io/name"     = "grafana"
+    }
+    port {
+      port        = 80
+      target_port = 3000
+    }
+
+    type = "LoadBalancer"
+  }
+}

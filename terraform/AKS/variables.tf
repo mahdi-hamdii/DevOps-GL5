@@ -22,6 +22,10 @@ variable "agent_count" {
   default = 1
 }
 
+variable "kube_config_path" {
+  type    = string
+  default = "/home/mahdi/devopsProjects/DevOps-Project-GL5/terraform/AKS/kubeconfig"
+}
 
 variable "ssh_public_key" {
   type    = string
