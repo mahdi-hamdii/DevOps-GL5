@@ -4,7 +4,7 @@
 
 --------
 In AKS, we will be using the managed kubernetes solution proposed by Azure.
-<img src="https://rafay.co/wp-content/uploads/2019/11/k8saks1-1.jpg" width="250" height="250" />
+<img src="https://rafay.co/wp-content/uploads/2019/11/k8saks1-1.jpg" width="500" height="250" />
 
 --------
 
