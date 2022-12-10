@@ -5,9 +5,10 @@
 
 ## provisionnig infrastructure
 > We will use Terraform to provision a Master node and n worker nodes:
-| Modules  | Roles | 
-| ------------- | ------------- |
-| Master | Create the master node for the K8s cluster and assign it a public ip |
-| Workers  | creates n worker nodes |
-| SG | Network security group rules | 
-| VNET | creates clusters Virtual Network and subnets |
+
+| Modules       | Roles                                                                 | 
+| ------------- | ------------------------------------------------------------------    |                                                   |
+| Master        | Create the master node for the K8s cluster and assign it a public ip  |
+| Workers       | creates n worker nodes                                                |
+| SG            | Network security group rules                                          | 
+| VNET          | creates clusters Virtual Network and subnets                          |
