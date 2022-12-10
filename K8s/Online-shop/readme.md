@@ -7,7 +7,6 @@ add them to the cart, and purchase them.
 
 | Home Page                                                                                                         | Checkout Screen                                                                                                    |
 | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-
 | [![Screenshot of store homepage](./online-boutique-frontend-1.png)](./online-boutique-frontend-1.png) | [![Screenshot of checkout screen](./online-boutique-frontend-2.png)](./online-boutique-frontend-2.png) |
 
 ## Architecture
