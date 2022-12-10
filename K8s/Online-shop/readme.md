@@ -4,6 +4,8 @@
 Online Boutique consists of a 11-tier microservices application. The application is a
 web-based e-commerce app where users can browse items,
 add them to the cart, and purchase them.
+
+| Home Page                                                                                                         | Checkout Screen                                                                                                    |
 | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 
 | [![Screenshot of store homepage](./docs/img/online-boutique-frontend-1.png)](./docs/img/online-boutique-frontend-1.png) | [![Screenshot of checkout screen](./docs/img/online-boutique-frontend-2.png)](./docs/img/online-boutique-frontend-2.png) |
