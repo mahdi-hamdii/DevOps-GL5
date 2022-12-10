@@ -12,3 +12,14 @@
 | Workers       | creates n worker nodes                                                |
 | SG            | Network security group rules                                          | 
 | VNET          | creates clusters Virtual Network and subnets                          |
+
+To provision the infrastructure we need to execute: 
+1. Terraform init
+2. Terraform apply
+
+## configuring nodes
+> After provisionning the infrastructure terraform will automatically call an ansible playbook that will configure K8s cluter
+- Setup kubeadm env on all instances: install Docker CE, kubeadm kubelet and kubectl. 
+- Initialize Master Node: Initiliaze master node using Calico
+- Generate Join Token and save it to a local buffer
+- Copy and execute join Token on worker Nodes
