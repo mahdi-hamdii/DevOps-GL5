@@ -8,7 +8,7 @@ add them to the cart, and purchase them.
 | Home Page                                                                                                         | Checkout Screen                                                                                                    |
 | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 
-| [![Screenshot of store homepage](./docs/img/online-boutique-frontend-1.png)](./docs/img/online-boutique-frontend-1.png) | [![Screenshot of checkout screen](./docs/img/online-boutique-frontend-2.png)](./docs/img/online-boutique-frontend-2.png) |
+| [![Screenshot of store homepage](./online-boutique-frontend-1.png)](./online-boutique-frontend-1.png) | [![Screenshot of checkout screen](./docs/img/online-boutique-frontend-2.png)](./docs/img/online-boutique-frontend-2.png) |
 
 ## Architecture
 
@@ -16,7 +16,7 @@ add them to the cart, and purchase them.
 languages that talk to each other over gRPC. See the [Development Principles](/docs/development-principles.md) doc for more information.
 
 [![Architecture of
-microservices](./docs/img/architecture-diagram.png)](./docs/img/architecture-diagram.png)
+microservices](./architecture-diagram.png)](./docs/img/architecture-diagram.png)
 
 Find **Protocol Buffers Descriptions** at the [`./pb` directory](./pb).
 
