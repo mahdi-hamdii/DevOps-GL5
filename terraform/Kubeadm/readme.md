@@ -23,3 +23,8 @@ To provision the infrastructure we need to execute:
 - Initialize Master Node: Initiliaze master node using Calico
 - Generate Join Token and save it to a local buffer
 - Copy and execute join Token on worker Nodes
+| Ansible Roles       | Description                                                                 | 
+| ------------- | -------------     |
+| kubernetes-env-setup        | Check Repository for full documentation  |
+| master-init       | Check Repository for full documentation  |
+
