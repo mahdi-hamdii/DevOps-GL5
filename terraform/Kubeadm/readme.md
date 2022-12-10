@@ -3,7 +3,7 @@
 >By design, it cares only about bootstrapping, not about provisioning machines.
 <img src="https://d33wubrfki0l68.cloudfront.net/e4a8ddb49f07de8b2c2dbbfc7c9bedcfe0816701/600b1/images/kubeadm-stacked-color.png" width="100" height="100" />
 
-## provisionnig infrastructure
+## Provisionnig Infrastructure
 > We will use Terraform to provision a Master node and n worker nodes:
 
 | Modules       | Roles                                                                 | 
@@ -17,7 +17,7 @@ To provision the infrastructure we need to execute:
 1. Terraform init
 2. Terraform apply
 
-## configuring nodes
+## Configuring Nodes
 > After provisionning the infrastructure terraform will automatically call an ansible playbook that will configure K8s cluter
 - Setup kubeadm env on all instances: install Docker CE, kubeadm kubelet and kubectl. 
 - Initialize Master Node: Initiliaze master node using Calico
