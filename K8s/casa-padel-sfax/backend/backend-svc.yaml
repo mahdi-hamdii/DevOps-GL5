@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: appointment-svc
+  name: backend-svc
   namespace: staging
 spec:
   selector:
-    app: appointment
-  type: ClusterIP
+    app: backend
+  type: LoadBalancer
   ports:
     - protocol: TCP
-      port: 8001
+      port: 80
       targetPort: 3000

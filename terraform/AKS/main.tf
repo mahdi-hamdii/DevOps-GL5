@@ -41,11 +41,3 @@ resource "local_file" "kubeconfig" {
     azurerm_kubernetes_cluster.k8s
   ]
 }
-
-module "monitoring" {
-  depends_on = [
-    local_file.kubeconfig
-  ]
-  source               = "./modules/Monitoring"
-  monitoring_namespace = "kubernetes-monitoring"
-}

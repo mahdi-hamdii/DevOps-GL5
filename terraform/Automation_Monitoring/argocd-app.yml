@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: devops-gl
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/mahdi-hamdii/casa-padel-sfax-monitored.git
+    path: chart
+    targetRevision: HEAD
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: staging
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true

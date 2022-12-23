@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-cm
+  namespace: staging
+data:
+    DATABASE_LINK: "backend-mongodb-svc:27017"

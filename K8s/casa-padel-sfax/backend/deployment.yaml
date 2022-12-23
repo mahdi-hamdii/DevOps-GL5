@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deploy
+  namespace: staging
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: mahdihamdi99/casapadelsfax:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: DATABASE_USER
+
+            - name: DATABASE_PASSWORD
+              valueFrom: 
+                secretKeyRef:
+                  name: backend-secrets
+                  key: DATABASE_PASSWORD
+
+            - name: DATABASE_LINK
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-cm
+                  key: DATABASE_LINK

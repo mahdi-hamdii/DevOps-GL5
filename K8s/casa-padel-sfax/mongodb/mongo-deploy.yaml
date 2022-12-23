@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-mongodb-depl
+  namespace: staging
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend-mongodb
+  template:
+    metadata:
+      labels:
+        app: backend-mongodb
+    spec:
+      volumes:
+        - name: ssd-1-volume
+          persistentVolumeClaim:
+            claimName: casapadel-backend-azure-managed-disk
+      containers:
+        - name: backend-mongodb
+          image: mongo
+          volumeMounts: 
+            - mountPath: "/data/db"
+              name: ssd-1-volume
+          ports:
+            - containerPort: 27017
+          env:
+
+            - name: MONGO_INITDB_ROOT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: DATABASE_USER
+
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: DATABASE_PASSWORD
